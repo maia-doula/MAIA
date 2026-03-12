@@ -135,7 +135,7 @@ Google Cloud Backend
 | 2 | Build Voice Input | Create backend server | Implement Symptom Detection Logic |
 | 3 | Add Voice Output | Build Gemini Live API connection | Design conversation flows |
 | 4 | Build Chat UI | Write AI Doula system prompt | Implement advocacy assistant logic |
-| 5 | Play AI voice responses, update READMEs & logs | Create streaming endpoint | Clean
+| 5 | Add contacts section, update READMEs & logs | Create streaming endpoint | Update system prompt to include contact escalation capability |
 
 **Deliverable:** A live doula that can listen, respond verbally, and answer questions.
 
@@ -150,7 +150,7 @@ Google Cloud Backend
 | 2 | Add Camera Input | Create contraction tracking API | Add racial equity safety logic |
 | 3 | Create Vision Interaction UI | Send Contraction Data to Gemini | Implement image analysis prompts |
 | 4 | Build Dashboard Layout | Add safety guardrails | Symptom escalation detection |
-| 5 | Update READMEs & logs | Add labor pattern detection |    |
+| 5 | Add quick notification button during labor | Add labor pattern detection | Create AI-generated and voice-triggered contact alerts |
 
 **Deliverable:** A multimodal agent supporting voice interaction, camera input, contraction tracking, and labor pattern interpretation.
 
@@ -163,9 +163,9 @@ Google Cloud Backend
 |---|---|---|---|
 | 1 | Polish UI | Deploy backend to Cloud Run | Implement breating coaching | 
 | 2 | Add Breathing Animation | Add advocacy assistant prompts | Create advocacy assistant |
-| 3 | Create Demo Flow | Add Postpartum Check-In Logic | Add postpartum support prompts |
+| 3 | Add AI-generated message preview | Add Postpartum Check-In Logic | Add postpartum support prompts |
 | 4 | Add animation UI elements | Optimize AI response flow | Optimize AI Response Flow |
-| 5 | Record Demo Video | Implement Symptom Summary Generator |   |
+| 5 | Record Demo Video | Implement Symptom Summary Generator | Implement advocacy summaries for healthcare providers |
 
 **Deliverable:** Finished MVP that meets all requirements.
 
