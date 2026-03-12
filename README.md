@@ -2,6 +2,7 @@
 
 > **An AI-powered doula and virtual midwife providing real-time, multimodal maternal support — built to reduce racial disparities in maternal healthcare.**
 
+[Spec Doc](#https://docs.google.com/document/d/1-2osDmxH38tccI5PsSweYSBbO1k-NnUI8dAWa8yskpg/edit?usp=sharing)
 ---
 
 ## Table of Contents
