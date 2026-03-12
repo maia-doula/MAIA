@@ -129,13 +129,13 @@ Google Cloud Backend
 ### Day 1 — Live Voice Agent
 **Goal:** Real-time voice AI doula conversation
 
-| # | Frontend | Backend |
-|---|---|---|
-| 1 | Create Web App | Set up Google Cloud project |
-| 2 | Build Voice Input | Install GenAI SDK |
-| 3 | Add Voice Output | Build Gemini Live API connection |
-| 4 | Build Chat UI | Write AI Doula system prompt |
-| 5 | Play AI voice responses, update READMEs & logs | Create streaming endpoint |
+| # | Frontend | Backend | AI Agent |
+|---|---|---|---|
+| 1 | Create Web App | Set up Google Cloud project | Write the AI Doula System Prompt |
+| 2 | Build Voice Input | Create backend server | Implement Symptom Detection Logic |
+| 3 | Add Voice Output | Build Gemini Live API connection | Design conversation flows |
+| 4 | Build Chat UI | Write AI Doula system prompt | Implement advocacy assistant logic |
+| 5 | Play AI voice responses, update READMEs & logs | Create streaming endpoint | Clean
 
 **Deliverable:** A live doula that can listen, respond verbally, and answer questions.
 
@@ -144,13 +144,13 @@ Google Cloud Backend
 ### Day 2 — Vision + Doula Intelligence (Multimodal Features)
 **Goal:** Vision input + contraction tracking
 
-| # | Frontend | Backend |
-|---|---|---|
-| 1 | Build Contraction Timer UI | Create Contraction Data Model |
-| 2 | Add Camera Input | Build Contraction Analysis Logic |
-| 3 | Create Vision Interaction UI | Send Contraction Data to Gemini |
-| 4 | Build Dashboard Layout | Add safety guardrails + symptom escalation detection |
-| 5 | Update READMEs & logs | Create Firestore database |
+| # | Frontend | Backend | AI Agent |
+|---|---|---|---|
+| 1 | Build Contraction Timer UI | Create firestore database | Implement labor interpretation |
+| 2 | Add Camera Input | Create contraction tracking API | Add racial equity safety logic |
+| 3 | Create Vision Interaction UI | Send Contraction Data to Gemini | Implement image analysis prompts |
+| 4 | Build Dashboard Layout | Add safety guardrails | Symptom escalation detection |
+| 5 | Update READMEs & logs | Add labor pattern detection |    |
 
 **Deliverable:** A multimodal agent supporting voice interaction, camera input, contraction tracking, and labor pattern interpretation.
 
@@ -159,13 +159,13 @@ Google Cloud Backend
 ### Day 3 — Polish + Demo Experience
 **Goal:** Hackathon-ready live demo, deployment-ready
 
-| # | Frontend | Backend |
-|---|---|---|
-| 1 | Polish UI | Deploy backend to Cloud Run |
-| 2 | Add Breathing Animation | Add advocacy assistant prompts |
-| 3 | Create Demo Flow | Add Postpartum Check-In Logic |
-| 4 | Add animation UI elements | Optimize AI response flow |
-| 5 | Record Demo Video | Implement Symptom Summary Generator |
+| # | Frontend | Backend | AI Agent |
+|---|---|---|---|
+| 1 | Polish UI | Deploy backend to Cloud Run | Implement breating coaching | 
+| 2 | Add Breathing Animation | Add advocacy assistant prompts | Create advocacy assistant |
+| 3 | Create Demo Flow | Add Postpartum Check-In Logic | Add postpartum support prompts |
+| 4 | Add animation UI elements | Optimize AI response flow | Optimize AI Response Flow |
+| 5 | Record Demo Video | Implement Symptom Summary Generator |   |
 
 **Deliverable:** Finished MVP that meets all requirements.
 
