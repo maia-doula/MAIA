@@ -32,13 +32,25 @@ jobs:
           create_issue_if_missing() {
             local title="$1"
             local body="$2"
-            local labels="$3"
-            if gh api "repos/$REPO/issues?state=open&per_page=100" --paginate --jq '.[].title' 2>/dev/null | grep -qF "$title"; then
-              echo "Skipped (already exists): $title"
-            else
-              gh issue create --repo "$REPO" --title "$title" --body "$body" --label "$labels"
-              echo "Created: $title"
+            local labels_csv="$3"  # comma-separated e.g. "day-1,frontend"
+            # Use REST API + jq --arg to safely check for existing issues by exact title
+            local existing
+            existing=$(gh api "repos/$REPO/issues?state=open&per_page=100" --paginate \
+              2>/dev/null | jq --arg t "$title" '.[] | select(.title == $t) | .number' | head -1 || true)
+            if [ -n "$existing" ]; then
+              echo "Skipped (already exists #$existing): $title"
+              return
             fi
+            # Create issue via REST API using env vars for safe JSON encoding
+            ISSUE_TITLE="$title" ISSUE_BODY="$body" ISSUE_LABELS="$labels_csv" \
+              python3 -c "
+import json, os
+title  = os.environ['ISSUE_TITLE']
+body   = os.environ['ISSUE_BODY']
+labels = os.environ['ISSUE_LABELS'].split(',')
+print(json.dumps({'title': title, 'body': body, 'labels': labels}))
+" | gh api "repos/$REPO/issues" -X POST --input - --silent
+            echo "Created: $title"
           }
 
           # ── Day 1: Live Voice Agent (Target: 2026-03-12) ──────────────────────
