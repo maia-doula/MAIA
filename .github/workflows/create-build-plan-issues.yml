@@ -7,6 +7,7 @@ on:
       - main
       - copilot/create-issues-for-build-plan
       - copilot/create-issues-for-3-day-build
+      - copilot/add-new-features-as-issues
     paths:
       - '.github/workflows/create-build-plan-issues.yml'
 
@@ -27,9 +28,11 @@ jobs:
           gh label create "day-3" --repo "$REPO" --color "d93f0b" --description "Day 3 - Polish + Demo Experience (March 14, 2026)" --force
           gh label create "frontend" --repo "$REPO" --color "7057ff" --description "Frontend feature" --force
           gh label create "backend" --repo "$REPO" --color "008672" --description "Backend feature" --force
+          gh label create "ai-agent" --repo "$REPO" --color "f9d0c4" --description "AI Agent feature" --force
 
-      - name: Create all build plan issues
+      - name: Update and create all build plan issues
         run: |
+          # Create a new issue only if no open issue with that exact title exists
           create_issue_if_missing() {
             local title="$1"
             local body="$2"
@@ -49,6 +52,101 @@ jobs:
               gh api "repos/$REPO/issues" -X POST --input - --silent
             echo "Created: $title"
           }
+
+          # Rename an existing open issue to a new title (updates title and body)
+          rename_issue() {
+            local old_title="$1"
+            local new_title="$2"
+            local new_body="$3"
+            local existing
+            existing=$(gh api "repos/$REPO/issues?state=open&per_page=100" --paginate \
+              2>/dev/null | jq --arg t "$old_title" '.[] | select(.title == $t) | .number' | head -1 || true)
+            if [ -n "$existing" ]; then
+              jq -n --arg title "$new_title" --arg body "$new_body" \
+                '{title: $title, body: $body}' | \
+                gh api "repos/$REPO/issues/$existing" -X PATCH --input - --silent
+              echo "Updated #$existing: '$old_title' -> '$new_title'"
+            fi
+          }
+
+          # ── Rename outdated issues to match the current build plan ─────────────
+
+          rename_issue \
+            "[Day 1][Frontend] Play AI voice responses, update READMEs & logs" \
+            "[Day 1][Frontend] Add contacts section, update READMEs & logs" \
+            "**Day:** Day 1 — Live Voice Agent
+          **Category:** Frontend
+          **Target Date:** 2026-03-12
+
+          Add an emergency contacts section and keep READMEs and development logs updated to reflect Day 1 progress.
+
+          **Goal:** Real-time voice AI doula conversation"
+
+          rename_issue \
+            "[Day 1][Backend] Install GenAI SDK" \
+            "[Day 1][Backend] Create backend server" \
+            "**Day:** Day 1 — Live Voice Agent
+          **Category:** Backend
+          **Target Date:** 2026-03-12
+
+          Initialize and configure the Node.js/Express backend server as the foundation for the MAIA API.
+
+          **Goal:** Real-time voice AI doula conversation"
+
+          rename_issue \
+            "[Day 2][Frontend] Update READMEs & logs" \
+            "[Day 2][Frontend] Add quick notification button during labor" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** Frontend
+          **Target Date:** 2026-03-13
+
+          Add a quick-access notification button that users can tap during contractions to alert contacts or flag urgent symptoms.
+
+          **Goal:** Vision input + contraction tracking"
+
+          rename_issue \
+            "[Day 2][Backend] Create Contraction Data Model" \
+            "[Day 2][Backend] Create contraction tracking API" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** Backend
+          **Target Date:** 2026-03-13
+
+          Build the API endpoints for creating, reading, and managing contraction tracking records.
+
+          **Goal:** Vision input + contraction tracking"
+
+          rename_issue \
+            "[Day 2][Backend] Build Contraction Analysis Logic" \
+            "[Day 2][Backend] Add labor pattern detection" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** Backend
+          **Target Date:** 2026-03-13
+
+          Develop algorithms to detect labor patterns from contraction frequency, duration, and interval data.
+
+          **Goal:** Vision input + contraction tracking"
+
+          rename_issue \
+            "[Day 2][Backend] Add safety guardrails + symptom escalation detection" \
+            "[Day 2][Backend] Add safety guardrails" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** Backend
+          **Target Date:** 2026-03-13
+
+          Implement safety guardrails to prevent harmful advice and ensure responses stay within appropriate scope.
+
+          **Goal:** Vision input + contraction tracking"
+
+          rename_issue \
+            "[Day 3][Frontend] Create Demo Flow" \
+            "[Day 3][Frontend] Add AI-generated message preview" \
+            "**Day:** Day 3 — Polish + Demo Experience
+          **Category:** Frontend
+          **Target Date:** 2026-03-14
+
+          Add a preview panel that displays AI-generated messages and summaries before they are sent or confirmed.
+
+          **Goal:** Hackathon-ready live demo, deployment-ready"
 
           # ── Day 1: Live Voice Agent (Target: 2026-03-12) ──────────────────────
 
@@ -98,12 +196,12 @@ jobs:
             "day-1,frontend"
 
           create_issue_if_missing \
-            "[Day 1][Frontend] Play AI voice responses, update READMEs & logs" \
+            "[Day 1][Frontend] Add contacts section, update READMEs & logs" \
             "**Day:** Day 1 — Live Voice Agent
           **Category:** Frontend
           **Target Date:** 2026-03-12
 
-          Integrate AI voice response playback and keep READMEs and development logs updated.
+          Add an emergency contacts section and keep READMEs and development logs updated to reflect Day 1 progress.
 
           **Goal:** Real-time voice AI doula conversation" \
             "day-1,frontend"
@@ -121,12 +219,12 @@ jobs:
             "day-1,backend"
 
           create_issue_if_missing \
-            "[Day 1][Backend] Install GenAI SDK" \
+            "[Day 1][Backend] Create backend server" \
             "**Day:** Day 1 — Live Voice Agent
           **Category:** Backend
           **Target Date:** 2026-03-12
 
-          Install and configure the Google GenAI SDK for integrating Gemini AI capabilities.
+          Initialize and configure the Node.js/Express backend server as the foundation for the MAIA API.
 
           **Goal:** Real-time voice AI doula conversation" \
             "day-1,backend"
@@ -163,6 +261,62 @@ jobs:
 
           **Goal:** Real-time voice AI doula conversation" \
             "day-1,backend"
+
+          # AI Agent
+          create_issue_if_missing \
+            "[Day 1][AI Agent] Write the AI Doula System Prompt" \
+            "**Day:** Day 1 — Live Voice Agent
+          **Category:** AI Agent
+          **Target Date:** 2026-03-12
+
+          Design and write the complete system prompt that gives MAIA its doula persona, empathetic tone, and clinical awareness.
+
+          **Goal:** Real-time voice AI doula conversation" \
+            "day-1,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 1][AI Agent] Implement Symptom Detection Logic" \
+            "**Day:** Day 1 — Live Voice Agent
+          **Category:** AI Agent
+          **Target Date:** 2026-03-12
+
+          Build logic that enables the AI to detect and flag potential symptoms described by the user during conversation.
+
+          **Goal:** Real-time voice AI doula conversation" \
+            "day-1,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 1][AI Agent] Design conversation flows" \
+            "**Day:** Day 1 — Live Voice Agent
+          **Category:** AI Agent
+          **Target Date:** 2026-03-12
+
+          Map out and implement structured conversation flows for common labor and pregnancy scenarios.
+
+          **Goal:** Real-time voice AI doula conversation" \
+            "day-1,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 1][AI Agent] Implement advocacy assistant logic" \
+            "**Day:** Day 1 — Live Voice Agent
+          **Category:** AI Agent
+          **Target Date:** 2026-03-12
+
+          Add AI logic that helps users self-advocate in healthcare settings by generating questions and scripts for provider conversations.
+
+          **Goal:** Real-time voice AI doula conversation" \
+            "day-1,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 1][AI Agent] Update system prompt to include contact escalation capability" \
+            "**Day:** Day 1 — Live Voice Agent
+          **Category:** AI Agent
+          **Target Date:** 2026-03-12
+
+          Extend the system prompt to enable MAIA to recommend contacting emergency services or support persons when needed.
+
+          **Goal:** Real-time voice AI doula conversation" \
+            "day-1,ai-agent"
 
           # ── Day 2: Vision + Doula Intelligence (Target: 2026-03-13) ───────────
 
@@ -212,35 +366,35 @@ jobs:
             "day-2,frontend"
 
           create_issue_if_missing \
-            "[Day 2][Frontend] Update READMEs & logs" \
+            "[Day 2][Frontend] Add quick notification button during labor" \
             "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Frontend
           **Target Date:** 2026-03-13
 
-          Update documentation and development logs to reflect Day 2 progress and new features.
+          Add a quick-access notification button that users can tap during contractions to alert contacts or flag urgent symptoms.
 
           **Goal:** Vision input + contraction tracking" \
             "day-2,frontend"
 
           # Backend
           create_issue_if_missing \
-            "[Day 2][Backend] Create Contraction Data Model" \
+            "[Day 2][Backend] Create Firestore database" \
             "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** 2026-03-13
 
-          Design and implement the data model for storing and managing contraction tracking data.
+          Set up and configure a Firestore database to persist user data, contraction records, and session history.
 
           **Goal:** Vision input + contraction tracking" \
             "day-2,backend"
 
           create_issue_if_missing \
-            "[Day 2][Backend] Build Contraction Analysis Logic" \
+            "[Day 2][Backend] Create contraction tracking API" \
             "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** 2026-03-13
 
-          Develop algorithms to analyze contraction patterns, frequency, and duration for labor assessment.
+          Build the API endpoints for creating, reading, and managing contraction tracking records.
 
           **Goal:** Vision input + contraction tracking" \
             "day-2,backend"
@@ -257,26 +411,82 @@ jobs:
             "day-2,backend"
 
           create_issue_if_missing \
-            "[Day 2][Backend] Add safety guardrails + symptom escalation detection" \
+            "[Day 2][Backend] Add safety guardrails" \
             "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** 2026-03-13
 
-          Implement safety guardrails and logic to detect concerning symptoms that require medical escalation.
+          Implement safety guardrails to prevent harmful advice and ensure responses stay within appropriate scope.
 
           **Goal:** Vision input + contraction tracking" \
             "day-2,backend"
 
           create_issue_if_missing \
-            "[Day 2][Backend] Create Firestore database" \
+            "[Day 2][Backend] Add labor pattern detection" \
             "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** 2026-03-13
 
-          Set up and configure a Firestore database to persist user data, contraction records, and session history.
+          Develop algorithms to detect labor patterns from contraction frequency, duration, and interval data.
 
           **Goal:** Vision input + contraction tracking" \
             "day-2,backend"
+
+          # AI Agent
+          create_issue_if_missing \
+            "[Day 2][AI Agent] Implement labor interpretation" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** AI Agent
+          **Target Date:** 2026-03-13
+
+          Build AI logic to interpret contraction patterns and provide guidance on labor progression.
+
+          **Goal:** Vision input + contraction tracking" \
+            "day-2,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 2][AI Agent] Add racial equity safety logic" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** AI Agent
+          **Target Date:** 2026-03-13
+
+          Implement bias-aware logic that ensures symptom escalation protocols surface warning signs equitably regardless of how symptoms are described.
+
+          **Goal:** Vision input + contraction tracking" \
+            "day-2,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 2][AI Agent] Implement image analysis prompts" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** AI Agent
+          **Target Date:** 2026-03-13
+
+          Write prompts that enable MAIA to analyze camera input and provide visual guidance to the user.
+
+          **Goal:** Vision input + contraction tracking" \
+            "day-2,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 2][AI Agent] Symptom escalation detection" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** AI Agent
+          **Target Date:** 2026-03-13
+
+          Add AI logic to detect concerning symptoms in user descriptions and recommend appropriate escalation steps.
+
+          **Goal:** Vision input + contraction tracking" \
+            "day-2,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 2][AI Agent] Create AI-generated and voice-triggered contact alerts" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
+          **Category:** AI Agent
+          **Target Date:** 2026-03-13
+
+          Enable MAIA to generate and trigger contact alerts via voice commands or AI-detected urgency.
+
+          **Goal:** Vision input + contraction tracking" \
+            "day-2,ai-agent"
 
           # ── Day 3: Polish + Demo Experience (Target: 2026-03-14) ──────────────
 
@@ -304,12 +514,12 @@ jobs:
             "day-3,frontend"
 
           create_issue_if_missing \
-            "[Day 3][Frontend] Create Demo Flow" \
+            "[Day 3][Frontend] Add AI-generated message preview" \
             "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Frontend
           **Target Date:** 2026-03-14
 
-          Design and implement a guided demo flow that showcases all MAIA features for hackathon judges.
+          Add a preview panel that displays AI-generated messages and summaries before they are sent or confirmed.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
             "day-3,frontend"
@@ -391,3 +601,59 @@ jobs:
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
             "day-3,backend"
+
+          # AI Agent
+          create_issue_if_missing \
+            "[Day 3][AI Agent] Implement breathing coaching" \
+            "**Day:** Day 3 — Polish + Demo Experience
+          **Category:** AI Agent
+          **Target Date:** 2026-03-14
+
+          Add AI-guided breathing coaching prompts that walk users through breathing exercises during contractions.
+
+          **Goal:** Hackathon-ready live demo, deployment-ready" \
+            "day-3,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 3][AI Agent] Create advocacy assistant" \
+            "**Day:** Day 3 — Polish + Demo Experience
+          **Category:** AI Agent
+          **Target Date:** 2026-03-14
+
+          Build a full advocacy assistant flow that generates scripts, questions, and talking points for healthcare provider conversations.
+
+          **Goal:** Hackathon-ready live demo, deployment-ready" \
+            "day-3,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 3][AI Agent] Add postpartum support prompts" \
+            "**Day:** Day 3 — Polish + Demo Experience
+          **Category:** AI Agent
+          **Target Date:** 2026-03-14
+
+          Write prompts that guide MAIA through postpartum check-ins, recovery milestones, and emotional support conversations.
+
+          **Goal:** Hackathon-ready live demo, deployment-ready" \
+            "day-3,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 3][AI Agent] Optimize AI Response Flow" \
+            "**Day:** Day 3 — Polish + Demo Experience
+          **Category:** AI Agent
+          **Target Date:** 2026-03-14
+
+          Tune prompt structure and response logic for faster, more coherent AI interactions during the live demo.
+
+          **Goal:** Hackathon-ready live demo, deployment-ready" \
+            "day-3,ai-agent"
+
+          create_issue_if_missing \
+            "[Day 3][AI Agent] Implement advocacy summaries for healthcare providers" \
+            "**Day:** Day 3 — Polish + Demo Experience
+          **Category:** AI Agent
+          **Target Date:** 2026-03-14
+
+          Generate concise advocacy summaries that users can share with healthcare providers to clearly communicate their symptoms and concerns.
+
+          **Goal:** Hackathon-ready live demo, deployment-ready" \
+            "day-3,ai-agent"
