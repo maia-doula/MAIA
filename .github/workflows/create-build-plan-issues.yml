@@ -34,117 +34,129 @@ jobs:
         run: |
           DAY1_DATE="2026-03-12"
 
-          # Frontend issues
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Frontend] Create Web App" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing() {
+            local title="$1"
+            local body="$2"
+            local labels="$3"
+            if gh issue list --repo "$REPO" --search "\"$title\" in:title" --json title --jq '.[].title' | grep -qF "$title"; then
+              echo "Issue already exists: $title"
+            else
+              gh issue create --repo "$REPO" --title "$title" --body "$body" --label "$labels"
+              echo "Created issue: $title"
+            fi
+          }
+
+          # Day 1 Frontend
+          create_issue_if_missing \
+            "[Day 1][Frontend] Create Web App" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Frontend
           **Target Date:** $DAY1_DATE
 
           Set up the web application as the foundation for the MAIA voice doula interface.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,frontend"
+            "day-1,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Frontend] Build Voice Input" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Frontend] Build Voice Input" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Frontend
           **Target Date:** $DAY1_DATE
 
           Implement voice input capability so users can speak to the MAIA doula assistant.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,frontend"
+            "day-1,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Frontend] Add Voice Output" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Frontend] Add Voice Output" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Frontend
           **Target Date:** $DAY1_DATE
 
           Implement voice output so the MAIA doula assistant can respond verbally to users.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,frontend"
+            "day-1,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Frontend] Build Chat UI" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Frontend] Build Chat UI" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Frontend
           **Target Date:** $DAY1_DATE
 
           Build the chat user interface for displaying conversation history and interactions.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,frontend"
+            "day-1,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Frontend] Play AI voice responses, update READMEs & logs" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Frontend] Play AI voice responses, update READMEs & logs" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Frontend
           **Target Date:** $DAY1_DATE
 
           Integrate AI voice response playback and keep READMEs and development logs updated.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,frontend"
+            "day-1,frontend"
 
-          # Backend issues
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Backend] Set up Google Cloud project" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          # Day 1 Backend
+          create_issue_if_missing \
+            "[Day 1][Backend] Set up Google Cloud project" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Backend
           **Target Date:** $DAY1_DATE
 
           Initialize and configure the Google Cloud project to host MAIA's backend infrastructure.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,backend"
+            "day-1,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Backend] Install GenAI SDK" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Backend] Install GenAI SDK" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Backend
           **Target Date:** $DAY1_DATE
 
           Install and configure the Google GenAI SDK for integrating Gemini AI capabilities.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,backend"
+            "day-1,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Backend] Build Gemini Live API connection" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Backend] Build Gemini Live API connection" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Backend
           **Target Date:** $DAY1_DATE
 
           Establish a live connection to the Gemini API to enable real-time AI interactions.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,backend"
+            "day-1,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Backend] Write AI Doula system prompt" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Backend] Write AI Doula system prompt" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Backend
           **Target Date:** $DAY1_DATE
 
           Craft the system prompt that defines MAIA's persona, tone, and capabilities as a doula assistant.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,backend"
+            "day-1,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 1][Backend] Create streaming endpoint" \
-            --body "**Day:** Day 1 — Live Voice Agent
+          create_issue_if_missing \
+            "[Day 1][Backend] Create streaming endpoint" \
+            "**Day:** Day 1 — Live Voice Agent
           **Category:** Backend
           **Target Date:** $DAY1_DATE
 
           Build a streaming API endpoint that delivers real-time AI responses to the frontend.
 
           **Goal:** Real-time voice AI doula conversation" \
-            --label "day-1,backend"
+            "day-1,backend"
 
       - name: Create Day 2 Issues (March 13, 2026 — Vision + Doula Intelligence)
         env:
@@ -153,117 +165,129 @@ jobs:
         run: |
           DAY2_DATE="2026-03-13"
 
-          # Frontend issues
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Frontend] Build Contraction Timer UI" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing() {
+            local title="$1"
+            local body="$2"
+            local labels="$3"
+            if gh issue list --repo "$REPO" --search "\"$title\" in:title" --json title --jq '.[].title' | grep -qF "$title"; then
+              echo "Issue already exists: $title"
+            else
+              gh issue create --repo "$REPO" --title "$title" --body "$body" --label "$labels"
+              echo "Created issue: $title"
+            fi
+          }
+
+          # Day 2 Frontend
+          create_issue_if_missing \
+            "[Day 2][Frontend] Build Contraction Timer UI" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Frontend
           **Target Date:** $DAY2_DATE
 
           Design and implement the contraction timer interface for tracking labor contractions.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,frontend"
+            "day-2,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Frontend] Add Camera Input" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Frontend] Add Camera Input" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Frontend
           **Target Date:** $DAY2_DATE
 
           Integrate camera input to enable vision-based interaction with the MAIA assistant.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,frontend"
+            "day-2,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Frontend] Create Vision Interaction UI" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Frontend] Create Vision Interaction UI" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Frontend
           **Target Date:** $DAY2_DATE
 
           Build the UI components for displaying and interacting with vision/camera-based features.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,frontend"
+            "day-2,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Frontend] Build Dashboard Layout" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Frontend] Build Dashboard Layout" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Frontend
           **Target Date:** $DAY2_DATE
 
           Create a unified dashboard layout that brings together voice, camera, and contraction tracking features.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,frontend"
+            "day-2,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Frontend] Update READMEs & logs" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Frontend] Update READMEs & logs" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Frontend
           **Target Date:** $DAY2_DATE
 
           Update documentation and development logs to reflect Day 2 progress and new features.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,frontend"
+            "day-2,frontend"
 
-          # Backend issues
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Backend] Create Contraction Data Model" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          # Day 2 Backend
+          create_issue_if_missing \
+            "[Day 2][Backend] Create Contraction Data Model" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** $DAY2_DATE
 
           Design and implement the data model for storing and managing contraction tracking data.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,backend"
+            "day-2,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Backend] Build Contraction Analysis Logic" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Backend] Build Contraction Analysis Logic" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** $DAY2_DATE
 
           Develop algorithms to analyze contraction patterns, frequency, and duration for labor assessment.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,backend"
+            "day-2,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Backend] Send Contraction Data to Gemini" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Backend] Send Contraction Data to Gemini" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** $DAY2_DATE
 
           Integrate contraction tracking data with Gemini AI for intelligent labor pattern interpretation.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,backend"
+            "day-2,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Backend] Add safety guardrails + symptom escalation detection" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Backend] Add safety guardrails + symptom escalation detection" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** $DAY2_DATE
 
           Implement safety guardrails and logic to detect concerning symptoms that require medical escalation.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,backend"
+            "day-2,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 2][Backend] Create Firestore database" \
-            --body "**Day:** Day 2 — Vision + Doula Intelligence
+          create_issue_if_missing \
+            "[Day 2][Backend] Create Firestore database" \
+            "**Day:** Day 2 — Vision + Doula Intelligence
           **Category:** Backend
           **Target Date:** $DAY2_DATE
 
           Set up and configure a Firestore database to persist user data, contraction records, and session history.
 
           **Goal:** Vision input + contraction tracking" \
-            --label "day-2,backend"
+            "day-2,backend"
 
       - name: Create Day 3 Issues (March 14, 2026 — Polish + Demo Experience)
         env:
@@ -272,114 +296,126 @@ jobs:
         run: |
           DAY3_DATE="2026-03-14"
 
-          # Frontend issues
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Frontend] Polish UI" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing() {
+            local title="$1"
+            local body="$2"
+            local labels="$3"
+            if gh issue list --repo "$REPO" --search "\"$title\" in:title" --json title --jq '.[].title' | grep -qF "$title"; then
+              echo "Issue already exists: $title"
+            else
+              gh issue create --repo "$REPO" --title "$title" --body "$body" --label "$labels"
+              echo "Created issue: $title"
+            fi
+          }
+
+          # Day 3 Frontend
+          create_issue_if_missing \
+            "[Day 3][Frontend] Polish UI" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Frontend
           **Target Date:** $DAY3_DATE
 
           Refine and polish the overall user interface for a polished, professional hackathon demo appearance.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,frontend"
+            "day-3,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Frontend] Add Breathing Animation" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Frontend] Add Breathing Animation" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Frontend
           **Target Date:** $DAY3_DATE
 
           Add guided breathing animation to help users during contractions and stressful moments.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,frontend"
+            "day-3,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Frontend] Create Demo Flow" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Frontend] Create Demo Flow" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Frontend
           **Target Date:** $DAY3_DATE
 
           Design and implement a guided demo flow that showcases all MAIA features for hackathon judges.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,frontend"
+            "day-3,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Frontend] Add animation UI elements" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Frontend] Add animation UI elements" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Frontend
           **Target Date:** $DAY3_DATE
 
           Enhance the UI with smooth animations and transitions for a more engaging user experience.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,frontend"
+            "day-3,frontend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Frontend] Record Demo Video" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Frontend] Record Demo Video" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Frontend
           **Target Date:** $DAY3_DATE
 
           Record a high-quality demo video showcasing all MAIA features for hackathon submission.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,frontend"
+            "day-3,frontend"
 
-          # Backend issues
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Backend] Deploy backend to Cloud Run" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          # Day 3 Backend
+          create_issue_if_missing \
+            "[Day 3][Backend] Deploy backend to Cloud Run" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Backend
           **Target Date:** $DAY3_DATE
 
           Deploy the MAIA backend service to Google Cloud Run for production-ready hosting.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,backend"
+            "day-3,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Backend] Add advocacy assistant prompts" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Backend] Add advocacy assistant prompts" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Backend
           **Target Date:** $DAY3_DATE
 
           Add specialized prompts that enable MAIA to advocate for patients' rights and preferences in healthcare settings.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,backend"
+            "day-3,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Backend] Add Postpartum Check-In Logic" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Backend] Add Postpartum Check-In Logic" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Backend
           **Target Date:** $DAY3_DATE
 
           Implement postpartum check-in functionality to support new mothers after delivery.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,backend"
+            "day-3,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Backend] Optimize AI response flow" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Backend] Optimize AI response flow" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Backend
           **Target Date:** $DAY3_DATE
 
           Optimize the AI response pipeline for faster, more reliable interactions during the live demo.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,backend"
+            "day-3,backend"
 
-          gh issue create --repo "$REPO" \
-            --title "[Day 3][Backend] Implement Symptom Summary Generator" \
-            --body "**Day:** Day 3 — Polish + Demo Experience
+          create_issue_if_missing \
+            "[Day 3][Backend] Implement Symptom Summary Generator" \
+            "**Day:** Day 3 — Polish + Demo Experience
           **Category:** Backend
           **Target Date:** $DAY3_DATE
 
           Build a feature that generates concise symptom summaries to help users communicate with healthcare providers.
 
           **Goal:** Hackathon-ready live demo, deployment-ready" \
-            --label "day-3,backend"
+            "day-3,backend"
