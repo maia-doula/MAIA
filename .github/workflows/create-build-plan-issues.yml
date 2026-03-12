@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - copilot/create-issues-for-build-plan
+      - copilot/create-issues-for-3-day-build
     paths:
       - '.github/workflows/create-build-plan-issues.yml'
 
@@ -41,15 +42,11 @@ jobs:
               echo "Skipped (already exists #$existing): $title"
               return
             fi
-            # Create issue via REST API using env vars for safe JSON encoding
-            ISSUE_TITLE="$title" ISSUE_BODY="$body" ISSUE_LABELS="$labels_csv" \
-              python3 -c "
-import json, os
-title  = os.environ['ISSUE_TITLE']
-body   = os.environ['ISSUE_BODY']
-labels = os.environ['ISSUE_LABELS'].split(',')
-print(json.dumps({'title': title, 'body': body, 'labels': labels}))
-" | gh api "repos/$REPO/issues" -X POST --input - --silent
+            # Create issue via REST API using jq for safe JSON encoding
+            echo "$labels_csv" | tr ',' '\n' | jq -R . | jq -s \
+              --arg title "$title" --arg body "$body" \
+              '{title: $title, body: $body, labels: .}' | \
+              gh api "repos/$REPO/issues" -X POST --input - --silent
             echo "Created: $title"
           }
 
