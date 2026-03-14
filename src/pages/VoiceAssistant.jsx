@@ -18,6 +18,7 @@ export default function VoiceAssistant() {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speakerEnabled, setSpeakerEnabled] = useState(true);
   const scrollRef = useRef(null);
   const recognitionRef = useRef(null);
   const synthRef = useRef(window.speechSynthesis);
@@ -30,9 +31,14 @@ export default function VoiceAssistant() {
   }, [messages]);
 
   const startListening = () => {
+    console.log('[MAIA Voice] Mic button clicked — starting recognition');
     const SpeechRecognition = window.SpeechRecognition || window['webkitSpeechRecognition'];
     if (!SpeechRecognition) {
-      setMessages(prev => [...prev, { role: 'assistant', content: "Voice recognition isn't available in your browser. Please type your message instead." }]);
+      console.warn('[MAIA Voice] SpeechRecognition not supported in this browser');
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "Voice recognition isn't available in your browser. Please type your message instead."
+      }]);
       return;
     }
 
@@ -41,23 +47,54 @@ export default function VoiceAssistant() {
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setIsListening(false);
-      sendMessage(transcript);
+    recognition.onstart = () => {
+      console.log('[MAIA Voice] Recognition started — listening for speech');
     };
 
-    recognition.onerror = () => {
+    // Guard: ensure sendMessage is called exactly once per mic session.
+    let hasSent = false;
+
+    recognition.onresult = (event) => {
+      // Accumulate only FINAL results — ignore interim partial words.
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+
+      if (!finalTranscript.trim() || hasSent) return;
+
+      hasSent = true;
+      console.log('[MAIA Voice] Final transcript captured:', finalTranscript.trim());
+      recognition.stop(); // close session — no further results needed
       setIsListening(false);
+      sendMessage(finalTranscript.trim());
+    };
+
+    recognition.onerror = (event) => {
+      console.error('[MAIA Voice] Recognition error:', event.error);
+      setIsListening(false);
+
+      const errorMessages = {
+        'not-allowed':   "Microphone access was denied. Please allow microphone permission in your browser settings.",
+        'no-speech':     "No speech was detected. Please try again.",
+        'audio-capture': "No microphone was found. Please check your device.",
+        'network':       "A network error occurred during recognition. Please try again.",
+      };
+      const msg = errorMessages[event.error] || `Voice recognition error: ${event.error}. Please try again.`;
+      setMessages(prev => [...prev, { role: 'assistant', content: msg }]);
     };
 
     recognition.onend = () => {
+      console.log('[MAIA Voice] Recognition ended');
       setIsListening(false);
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
+    recognition.start(); // browser will prompt for mic permission if not yet granted
     setIsListening(true);
+    console.log('[MAIA Voice] recognition.start() called');
   };
 
   const stopListening = () => {
@@ -76,6 +113,7 @@ export default function VoiceAssistant() {
   };
 
   const speakText = (text) => {
+    if (!speakerEnabled) return; // respect the toggle — don't speak when off
     const cleanText = text.replace(/[💜🤰❤️‍🩹🩺]/g, '').replace(/\*\*/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = 0.9;
@@ -88,6 +126,12 @@ export default function VoiceAssistant() {
   const stopSpeaking = () => {
     synthRef.current.cancel();
     setIsSpeaking(false);
+  };
+
+  const toggleSpeaker = () => {
+    const next = !speakerEnabled;
+    setSpeakerEnabled(next);
+    if (!next) stopSpeaking(); // stop any active playback when disabling
   };
 
   const sendMessage = async (text) => {
@@ -131,8 +175,13 @@ Respond concisely:`,
           </div>
         </div>
         <div className="flex gap-2">
-          <Button size="icon" variant="ghost" onClick={isSpeaking ? stopSpeaking : undefined} className="rounded-xl">
-            {isSpeaking ? <VolumeX className="w-5 h-5 text-primary" /> : <Volume2 className="w-5 h-5" />}
+          <Button size="icon" variant="ghost" onClick={toggleSpeaker} className="rounded-xl">
+            {speakerEnabled
+              ? isSpeaking
+                ? <Volume2 className="w-5 h-5 text-primary" />
+                : <Volume2 className="w-5 h-5" />
+              : <VolumeX className="w-5 h-5 text-muted-foreground" />
+            }
           </Button>
           <ThemeToggle />
         </div>

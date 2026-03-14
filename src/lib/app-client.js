@@ -1,3 +1,5 @@
+// Groq API replaces the Gemini SDK — uses the OpenAI-compatible chat completions endpoint
+
 const STORAGE_PREFIX = 'maia'
 
 const STORAGE_KEYS = {
@@ -121,35 +123,106 @@ function createEntityStore(storageKey, prefix) {
 	}
 }
 
-function buildAiResponse(promptText) {
-	const prompt = promptText.toLowerCase()
+// ---------------------------------------------------------------------------
+// Groq integration  (OpenAI-compatible chat completions)
+// ---------------------------------------------------------------------------
 
-	if (/analyze this image|vision scan|photo analysis/.test(prompt)) {
-		return [
-			'I cannot diagnose from an image alone, but I can help you triage what to do next.',
-			'Review: the photo should be checked for worsening redness, drainage, severe swelling, spreading rash, or increasing pain.',
-			'Concern level: if symptoms are mild and stable, monitor closely. If they are worsening, call your provider today. Seek urgent care for rapidly spreading changes or severe pain. Seek emergency care for heavy bleeding, trouble breathing, chest pain, or fainting.',
-			'Next step: compare with a photo from earlier, note fever or pain level, and contact a clinician if anything is escalating.',
-		].join('\n\n')
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const GROQ_MODEL   = 'llama-3.1-8b-instant'
+
+const SYSTEM_PROMPT = `
+You are MAIA (Maternal Artificial Intelligence Assistant), a calm and supportive AI doula designed to assist pregnant and postpartum mothers.
+
+ROLE
+Provide guidance, education, emotional support, and early warning awareness during pregnancy, labor, and postpartum recovery.
+
+COMMUNICATION STYLE
+
+* Speak clearly and calmly.
+* Keep responses short and easy to understand.
+* Avoid complex medical terminology.
+* Ask gentle follow-up questions when helpful.
+* Be supportive and reassuring.
+
+SAFETY RULES
+You are not a doctor and you do not diagnose medical conditions.
+
+If a user reports symptoms such as:
+heavy bleeding, severe headache, vision loss, chest pain, fainting, severe abdominal pain, high fever, or reduced baby movement
+
+you must clearly recommend seeking immediate medical care.
+
+Always prioritize the user's safety.
+
+LABOR SUPPORT
+If the user asks about labor or contractions:
+
+* Explain the 5-1-1 rule (contractions every 5 minutes, lasting 1 minute, for 1 hour).
+* Suggest breathing techniques and staying calm.
+* Encourage contacting a healthcare professional when labor becomes consistent.
+
+POSTPARTUM SUPPORT
+Provide supportive responses for:
+postpartum recovery, emotional stress, anxiety, breastfeeding concerns, and general recovery.
+
+If the user expresses severe depression or thoughts of self-harm, advise contacting a healthcare professional or support service immediately.
+
+ADVOCACY SUPPORT
+Encourage users to ask questions and advocate for themselves in healthcare settings. Help them prepare questions for doctors or midwives.
+
+RESPONSE STYLE
+
+1. Acknowledge the concern
+2. Provide short guidance
+3. Suggest when to contact a healthcare professional
+
+Always maintain a calm and empathetic tone.
+`
+
+/**
+ * Send a text prompt to Groq and return the assistant reply.
+ *
+ * @param {string} prompt - The user message to send.
+ * @returns {Promise<string>} - The generated response text.
+ */
+async function callGroq(prompt) {
+	const apiKey = import.meta.env.VITE_GROQ_API_KEY
+	if (!apiKey) {
+		throw new Error('VITE_GROQ_API_KEY is not set. Add it to your .env file.')
 	}
 
-	if (/severe headache|vision changes|heavy bleeding|fever|emergency/.test(prompt)) {
-		return 'Those symptoms can be dangerous in pregnancy or postpartum. Please seek urgent medical care now. If you have severe headache, vision changes, heavy bleeding, chest pain, shortness of breath, or you feel faint, call emergency services immediately.'
-	}
+	console.log('[MAIA] Sending request to Groq...')
 
-	if (/contraction|labor/.test(prompt)) {
-		return 'Track timing, duration, and intensity. If contractions are about 5 minutes apart, lasting about 1 minute, for 1 hour, it may be time to head in. Go sooner if your water breaks, bleeding increases, fetal movement drops, or you feel unsafe.'
-	}
+	try {
+		const response = await fetch(GROQ_API_URL, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${apiKey}`,
+			},
+			body: JSON.stringify({
+				model: GROQ_MODEL,
+				messages: [
+					{ role: 'system', content: SYSTEM_PROMPT },
+					{ role: 'user',   content: prompt },
+				],
+				temperature: 0.4,
+			}),
+		})
 
-	if (/symptom|check|assess/.test(prompt)) {
-		return 'I can help you organize what you are feeling, but I cannot diagnose. Note when symptoms started, whether they are getting worse, and whether you have red-flag signs like heavy bleeding, severe pain, fever, chest pain, shortness of breath, or severe headache. Mild stable symptoms can often be monitored, but worsening symptoms should be discussed with your provider.'
-	}
+		if (!response.ok) {
+			const errorText = await response.text()
+			throw new Error(`Groq API responded with ${response.status}: ${errorText}`)
+		}
 
-	if (/postpartum|anxiety|depress|overwhelmed/.test(prompt)) {
-		return 'What you are feeling matters. Rest, hydration, food, and support help, but persistent sadness, panic, hopelessness, or feeling unable to care for yourself or your baby should be discussed with a clinician promptly. If you might harm yourself or feel unsafe, call emergency services now.'
+		const data = await response.json()
+		const text = data.choices[0].message.content
+		console.log('[MAIA] Groq response received.')
+		return text
+	} catch (error) {
+		console.error('[MAIA] Groq API error:', error)
+		return "I'm having trouble reaching my AI service right now. Please try again."
 	}
-
-	return 'I am here to help you think through what is happening. Tell me what symptoms you have, when they started, and whether they are getting better or worse. If anything feels severe, fast-changing, or unsafe, contact a clinician or seek urgent care.'
 }
 
 export const appClient = {
@@ -191,8 +264,10 @@ export const appClient = {
 
 	integrations: {
 		Core: {
-			async InvokeLLM({ prompt }) {
-				return buildAiResponse(prompt)
+			async InvokeLLM({ prompt, file_urls = [] }) {
+				// file_urls are accepted to keep the interface stable but Groq is
+				// text-only; vision analysis can be added later via a multimodal model.
+				return callGroq(prompt)
 			},
 
 			async UploadFile({ file }) {
