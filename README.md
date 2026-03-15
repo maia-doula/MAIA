@@ -94,12 +94,38 @@ MAIA incorporates design elements specifically intended to reduce racial and soc
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | React, Vite, TailwindCSS, Web Speech API, WebRTC |
-| **Backend** | Node.js, Express, WebSockets, Google GenAI SDK |
-| **AI Models** | Gemini 2.0 Flash Live (real-time voice agent), Gemini 1.5 Pro (vision analysis) |
-| **Cloud Infrastructure** | Google Cloud Platform, Cloud Run, Firestore, Cloud Storage |
-| **Voice Layer** | Web Speech API or Gemini Live Streaming *(TBD)* |
-| **Image / Visual Guidance** | Gemini Live API, Gemini Vision |
+| **Frontend** | React 18, Vite, TailwindCSS, shadcn/ui, Framer Motion |
+| **AI SDK** | [@google/generative-ai](https://www.npmjs.com/package/@google/generative-ai) — Google GenAI SDK |
+| **AI Model** | Gemini 1.5 Flash (`gemini-1.5-flash-latest`) — text + multimodal (vision) |
+| **Voice Layer** | Web Speech API (SpeechRecognition + SpeechSynthesis) |
+| **Data Layer** | localStorage (client-side, no backend required for demo) |
+| **Cloud Infrastructure** | Google Cloud Platform (planned: Cloud Run, Firestore, Cloud Storage) |
+
+---
+
+## Setup
+
+1. Clone the repository and install dependencies:
+
+```bash
+npm install
+```
+
+2. Create a `.env` file in the project root and add your Gemini API key:
+
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+You can obtain a free API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+3. Start the development server:
+
+```bash
+npm run dev
+```
+
+> **Note:** The app runs without a backend. All data is stored in the browser's localStorage. If `VITE_GEMINI_API_KEY` is not set, the AI chat will return a friendly configuration message instead of an AI response.
 
 ---
 

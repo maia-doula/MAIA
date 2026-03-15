@@ -1,4 +1,5 @@
-// Groq API replaces the Gemini SDK — uses the OpenAI-compatible chat completions endpoint
+// Google Gemini integration via the official @google/generative-ai SDK
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const STORAGE_PREFIX = 'maia'
 
@@ -123,12 +124,59 @@ function createEntityStore(storageKey, prefix) {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// Groq integration  (OpenAI-compatible chat completions)
-// ---------------------------------------------------------------------------
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const GROQ_MODEL   = 'llama-3.1-8b-instant'
+
+/**
+ * Convert a URL (blob: or https:) to a Gemini-compatible inline image part.
+ * Fetches the resource and encodes it as base64.
+ *
+ * @param {string} url
+ * @returns {Promise<{inlineData: {data: string, mimeType: string}}>}
+ */
+async function urlToInlinePart(url) {
+	const response = await fetch(url)
+	const buffer   = await response.arrayBuffer()
+	const base64   = btoa(String.fromCharCode(...new Uint8Array(buffer)))
+	const mimeType = response.headers.get('content-type') || 'image/jpeg'
+	return { inlineData: { data: base64, mimeType } }
+}
+
+/**
+ * Send a prompt (and optional image URLs) to Gemini and return the reply text.
+ *
+ * @param {string}   prompt    - The user message.
+ * @param {string[]} file_urls - Optional image URLs for multimodal analysis.
+ * @returns {Promise<string>}
+ */
+async function callGemini(prompt, file_urls = []) {
+	const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+	if (!apiKey) {
+		return 'Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your .env file.'
+	}
+
+	console.log('[MAIA] Sending request to Gemini...')
+
+	try {
+		const genAI = new GoogleGenerativeAI(apiKey)
+		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
+
+		// Build the content parts: text prompt + any inline images
+		const parts = [{ text: `${SYSTEM_PROMPT}\n\nUser: ${prompt}` }]
+
+		if (file_urls.length > 0) {
+			const imageParts = await Promise.all(file_urls.map(urlToInlinePart))
+			parts.push(...imageParts)
+		}
+
+		const result = await model.generateContent(parts)
+		const text   = result.response.text()
+		console.log('[MAIA] Gemini response received.')
+		return text
+	} catch (error) {
+		console.error('[MAIA] Gemini API error:', error)
+		return "I'm having trouble reaching my AI service right now. Please try again."
+	}
+}
 
 const SYSTEM_PROMPT = `
 You are MAIA (Maternal Artificial Intelligence Assistant), a calm and supportive AI doula designed to assist pregnant and postpartum mothers.
@@ -179,52 +227,6 @@ RESPONSE STYLE
 Always maintain a calm and empathetic tone.
 `
 
-/**
- * Send a text prompt to Groq and return the assistant reply.
- *
- * @param {string} prompt - The user message to send.
- * @returns {Promise<string>} - The generated response text.
- */
-async function callGroq(prompt) {
-	const apiKey = import.meta.env.VITE_GROQ_API_KEY
-	if (!apiKey) {
-		throw new Error('VITE_GROQ_API_KEY is not set. Add it to your .env file.')
-	}
-
-	console.log('[MAIA] Sending request to Groq...')
-
-	try {
-		const response = await fetch(GROQ_API_URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${apiKey}`,
-			},
-			body: JSON.stringify({
-				model: GROQ_MODEL,
-				messages: [
-					{ role: 'system', content: SYSTEM_PROMPT },
-					{ role: 'user',   content: prompt },
-				],
-				temperature: 0.4,
-			}),
-		})
-
-		if (!response.ok) {
-			const errorText = await response.text()
-			throw new Error(`Groq API responded with ${response.status}: ${errorText}`)
-		}
-
-		const data = await response.json()
-		const text = data.choices[0].message.content
-		console.log('[MAIA] Groq response received.')
-		return text
-	} catch (error) {
-		console.error('[MAIA] Groq API error:', error)
-		return "I'm having trouble reaching my AI service right now. Please try again."
-	}
-}
-
 export const appClient = {
 	auth: {
 		async me() {
@@ -265,9 +267,8 @@ export const appClient = {
 	integrations: {
 		Core: {
 			async InvokeLLM({ prompt, file_urls = [] }) {
-				// file_urls are accepted to keep the interface stable but Groq is
-				// text-only; vision analysis can be added later via a multimodal model.
-				return callGroq(prompt)
+				// Passes file_urls through to callGemini for multimodal (CameraInput) support
+				return callGemini(prompt, file_urls)
 			},
 
 			async UploadFile({ file }) {
