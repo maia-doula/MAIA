@@ -10,6 +10,17 @@ MAIA (Maternal Artificial Intelligence Assistant) is an AI-powered web applicati
 
 The project is motivated by the need for more consistent maternal support, especially for users who may face barriers to real-time care, education, or advocacy resources.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20Dashboard-6f42c1?style=for-the-badge)](https://maia-ai-doula-f5a03.web.app/Dashboard)
+
+## System Architecture
+
+The MAIA architecture is designed for a responsive conversational maternal-support experience. User interactions are handled in the React frontend, voice input is captured through browser APIs, and AI prompts are routed through the app request layer before responses are rendered back in the interface.
+
+Flow:
+User -> React Frontend (Vite + Tailwind) -> Voice Input (Web Speech API) -> AI Request Handler (`src/lib/app-client.js`) -> Groq LLM API -> Response returned to UI -> Deployment on Firebase Hosting (Google Cloud)
+
+![System Architecture](docs/architecture-diagram.png)
+
 ## Features
 
 - **AI conversational support** for pregnancy and postpartum questions
@@ -49,6 +60,8 @@ MAIA runs as a React single-page application. Users interact through text, voice
 
 ```text
 MAIA/
+|-- docs/
+|   `-- architecture-diagram.png # System architecture diagram (manually added)
 |-- entities/                 # Data entity definitions (Contact, Contraction, SymptomLog)
 |-- src/
 |   |-- components/           # Shared UI and feature components
