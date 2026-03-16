@@ -17,7 +17,7 @@ The project is motivated by the need for more consistent maternal support, espec
 The MAIA architecture is designed for a responsive conversational maternal-support experience. User interactions are handled in the React frontend, voice input is captured through browser APIs, and AI prompts are routed through the app request layer before responses are rendered back in the interface.
 
 Flow:
-User -> React Frontend (Vite + Tailwind) -> Voice Input (Web Speech API) -> AI Request Handler (`src/lib/app-client.js`) -> Groq LLM API -> Response returned to UI -> Deployment on Firebase Hosting (Google Cloud)
+User -> React Frontend (Vite + Tailwind) -> Voice Input (Web Speech API) -> AI Request Handler (`src/lib/app-client.js`) -> Gemini -> Response returned to UI -> Deployment on Firebase Hosting (Google Cloud)
 
 ![System Architecture](docs/architecture-diagram.png)
 
